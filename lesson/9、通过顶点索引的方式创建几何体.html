@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title>My first three.js app</title>
+    <style>
+        body {
+            margin: 0;
+        }
+
+        canvas {
+            width: 20%;
+            height: 20%
+        }
+    </style>
+</head>
+
+<body>
+    <script src="https://cdn.bootcdn.net/ajax/libs/three.js/r128/three.js"></script>
+    <script>
+        var scene = new THREE.Scene();
+
+        var camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        camera.position.z = 100;
+
+        var renderer = new THREE.WebGLRenderer();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.body.appendChild(renderer.domElement);
+
+
+        var geometry = new THREE.BufferGeometry(); //创建一个Buffer类型几何体对象
+        var vertexArr = [
+            [0, 0, 0], [0, 20, 0], [20, 20, 0], [20, 0, 0],
+            [0, 0, 20], [0, 20, 20], [20, 20, 20], [20, 0, 20]
+        ]
+        var vertexIndex = [
+            [0, 1, 2], [0, 2, 3],   //底 
+            [4, 5, 6], [4, 6, 7],   //顶
+            [5, 1, 2], [5, 2, 6],   //前
+            [4, 0, 3], [4, 3, 7],   //后
+            [5, 1, 0], [5, 0, 4],   //左
+            [6, 2, 3], [7, 6, 3],   //右
+        ]
+        //类型数组创建顶点数据
+        let vertexRes = []
+        vertexIndex.forEach(arr => {
+            arr.forEach(item => {
+                vertexRes.push(...vertexArr[item])
+            })
+        })
+        var vertices = new Float32Array(vertexRes);
+        // 创建属性缓冲区对象
+        var attribue = new THREE.BufferAttribute(vertices, 3); //3个为一组，表示一个顶点的xyz坐标
+        // 设置几何体attributes属性的位置属性
+        geometry.attributes.position = attribue;
+        geometry.computeVertexNormals();
+
+        // 三角面(网格)渲染模式
+        var material = new THREE.MeshLambertMaterial({
+            color: 0x00ff00, //三角面颜色
+            side: THREE.DoubleSide //两面可见
+        }); //材质对象
+        var mesh = new THREE.Mesh(geometry, material); //网格模型对象Mesh
+        scene.add(mesh);
+
+
+        var point = new THREE.PointLight(0xffffff);
+        point.position.set(400, 200, 300);
+        scene.add(point);
+        var ambient = new THREE.AmbientLight(0x9966ff);
+        scene.add(ambient);
+
+
+        function animate() {
+            requestAnimationFrame(animate);
+            mesh.rotation.x += 0.01;
+            mesh.rotation.y += 0.01;
+            mesh.rotation.z += 0.01;
+            renderer.render(scene, camera);
+        }
+        animate();
+
+
+    </script>
+</body>
+
+</html>

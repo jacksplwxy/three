@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title>My first three.js app</title>
+    <style>
+        body {
+            margin: 0;
+        }
+
+        canvas {
+            width: 20%;
+            height: 20%
+        }
+    </style>
+</head>
+
+<body>
+    <script src="https://cdn.bootcdn.net/ajax/libs/three.js/r128/three.js"></script>
+    <script>
+        var scene = new THREE.Scene();
+
+        var camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        camera.position.z = 100;
+
+        var renderer = new THREE.WebGLRenderer();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.body.appendChild(renderer.domElement);
+
+
+        var geometry = new THREE.BufferGeometry(); //创建一个Buffer类型几何体对象
+        //类型数组创建顶点数据
+        var vertices = new Float32Array([
+            // 0, 0, 0, //顶点1坐标
+            // 50, 0, 0, //顶点2坐标
+            // 0, 20, 0, //顶点3坐标
+            // 0, 0, 10, //顶点4坐标
+            // 0, 0, 20, //顶点5坐标
+            // 50, 0, 10, //顶点6坐标
+
+            0, 0, 0,
+            20, 20, 0,
+            0, 20, 0,
+
+            0, 0, 0,
+            20, 20, 0,
+            20, 0, 0,
+
+            0, 0, 20,
+            20, 20, 20,
+            0, 20, 20,
+
+            0, 0, 20,
+            20, 20, 20,
+            20, 0, 20,
+
+            0, 20, 20,
+            0, 20, 0,
+            20, 20, 0,
+
+            0, 20, 20,
+            20, 20, 20,
+            20, 20, 0,
+
+            0, 0, 20,
+            0, 0, 0,
+            20, 0, 0,
+
+            0, 0, 20,
+            20, 0, 20,
+            20, 0, 0,
+
+            0, 20, 0,
+            0, 20, 20,
+            0, 0, 20,
+
+            0, 0, 20,
+            0, 0, 0,
+            0, 20, 0,
+
+            20, 20, 0,
+            20, 20, 20,
+            20, 0, 20,
+
+            20, 0, 20,
+            20, 0, 0,
+            20, 20, 0,
+        ]);
+        // 创建属性缓冲区对象
+        var attribue = new THREE.BufferAttribute(vertices, 3); //3个为一组，表示一个顶点的xyz坐标
+        // 设置几何体attributes属性的位置属性
+        geometry.attributes.position = attribue;
+
+
+        // 三角面(网格)渲染模式
+        var material = new THREE.MeshBasicMaterial({
+            color: 0x0000ff, //三角面颜色
+            side: THREE.DoubleSide //两面可见
+        }); //材质对象
+        var mesh = new THREE.Mesh(geometry, material); //网格模型对象Mesh
+        scene.add(mesh);
+
+        // 点渲染模式
+        var material = new THREE.PointsMaterial({
+            color: 0xff0000,
+            size: 6.0 //点对象像素尺寸
+        }); //材质对象
+        var points = new THREE.Points(geometry, material); //点模型对象
+        scene.add(points); //点对象添加到场景中
+
+        // 线条渲染模式
+        var material = new THREE.LineBasicMaterial({
+            color: 0x00ff00 //线条颜色
+        });//材质对象
+        var line = new THREE.Line(geometry, material);//线条模型对象
+        scene.add(line);//线条对象添加到场景中
+
+
+
+        function animate() {
+            requestAnimationFrame(animate);
+            mesh.rotation.x += 0.01;
+            mesh.rotation.y += 0.01;
+            mesh.rotation.z += 0.01;
+            points.rotation.x += 0.01;
+            points.rotation.y += 0.01;
+            points.rotation.z += 0.01;
+            line.rotation.x += 0.01;
+            line.rotation.y += 0.01;
+            line.rotation.z += 0.01;
+            renderer.render(scene, camera);
+        }
+        animate();
+
+
+    </script>
+</body>
+
+</html>

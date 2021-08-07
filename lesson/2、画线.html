@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title>My first three.js app</title>
+    <style>
+        body {
+            margin: 0;
+        }
+
+        canvas {
+            width: 100%;
+            height: 100%
+        }
+    </style>
+</head>
+
+<body>
+    <script src="https://cdn.bootcdn.net/ajax/libs/three.js/r128/three.js"></script>
+    <script>
+        var renderer = new THREE.WebGLRenderer();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.body.appendChild(renderer.domElement);
+
+        var camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, 500);
+        camera.position.set(0, 0, 300);
+        camera.lookAt(0, 0, 0);
+
+        var scene = new THREE.Scene();
+        const material = new THREE.LineBasicMaterial({ color: '#fff' })
+        const geometry = new THREE.BufferGeometry()
+        const pointsArray = new Array()
+        for (let i = 0; i < 1000; i++) {
+            const x = Math.random() * 100 - 1 //范围在-1到1
+            const y = Math.random() * 100 - 1
+            const z = Math.random() * 100 - 1
+            pointsArray.push(new THREE.Vector3(x, y, z))
+        }
+        geometry.setFromPoints(pointsArray)
+        const mesh = new THREE.Line(geometry, material)
+        mesh.position.set(0, 0, 0)
+        scene.add(mesh)
+
+        console.log("line现在已经被添加")
+        function animate() {
+            requestAnimationFrame(animate);
+            mesh.rotation.x += 0.01;
+            mesh.rotation.y += 0.01;
+            renderer.render(scene, camera);
+        }
+        animate();
+
+
+    </script>
+</body>
+
+</html>

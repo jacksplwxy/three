@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title>My first three.js app</title>
+    <style>
+        body {
+            margin: 0;
+        }
+
+        canvas {
+            width: 100%;
+            height: 100%
+        }
+    </style>
+</head>
+
+<body>
+    <script src="https://cdn.bootcdn.net/ajax/libs/three.js/r128/three.js"></script>
+    <script>
+        var scene = new THREE.Scene();
+        var camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+
+        var renderer = new THREE.WebGLRenderer();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.body.appendChild(renderer.domElement);
+
+        var geometry = new THREE.BoxGeometry(1, 1, 1);
+        // 几何体xyz三个方向放大
+        geometry.scale(1, 2, 3);
+        // 几何体沿着x轴平移50
+        geometry.translate(50, 0, 0);
+        // 几何体绕着x轴旋转45度
+        geometry.rotateX(Math.PI / 4);
+        // 居中：偏移的几何体居中
+        geometry.center();
+        console.log(geometry.vertices);
+        var material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
+        var cube = new THREE.Mesh(geometry, material);
+        scene.add(cube);
+
+        // // 几何体xyz方向分别缩放0.5,1.5,2倍
+        // geometry.scale(0.5, 1.5, 2);
+        // // 网格模型xyz方向分别缩放0.5,1.5,2倍
+        // mesh.scale.set(0.5, 1.5, 2)
+
+        camera.position.z = 5;
+        function animate() {
+            requestAnimationFrame(animate);
+            cube.rotation.x += 0.01;
+            cube.rotation.y += 0.01;
+            renderer.render(scene, camera);
+        }
+        animate();
+
+
+    </script>
+</body>
+
+</html>
