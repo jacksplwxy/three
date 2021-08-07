@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title>My first three.js app</title>
+    <style>
+        body {
+            margin: 0;
+        }
+
+        canvas {
+            width: 100%;
+            height: 100%
+        }
+    </style>
+</head>
+
+<body>
+    <script src="https://cdn.bootcdn.net/ajax/libs/three.js/r128/three.js"></script>
+    <script src="../js/controls/OrbitControls.js"></script>
+    <script>
+        var scene = new THREE.Scene();
+        var camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        camera.position.x = 0;
+        camera.position.y = 0;
+        camera.position.z = 100;
+
+        var renderer = new THREE.WebGLRenderer();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.body.appendChild(renderer.domElement);
+
+
+
+
+
+
+
+
+
+
+        var points = [
+            new THREE.Vector2(-50, -50),
+            new THREE.Vector2(-60, 0),
+            new THREE.Vector2(0, 50),
+            new THREE.Vector2(60, 0),
+            new THREE.Vector2(50, -50),
+            new THREE.Vector2(-50, -50),
+        ]
+        // 通过顶点定义轮廓
+        var shape = new THREE.Shape(points);
+        // shape可以理解为一个需要填充轮廓
+        // 所谓填充：ShapeGeometry算法利用顶点计算出三角面face3数据填充轮廓
+        var geometry = new THREE.ShapeGeometry(shape, 25);
+        var material = new THREE.LineBasicMaterial({
+            color: 0x00ffff,
+            side: THREE.DoubleSide
+        });
+        var mesh = new THREE.Mesh(geometry, material);
+        scene.add(mesh); //线条对象添加到场景中
+
+
+        // 通过shpae基类path的方法绘制轮廓（本质也是生成顶点）
+        var shape = new THREE.Shape();
+        shape.absarc(0, 0, 20, 0, 2 * Math.PI);//圆弧轮廓
+        console.log(shape.getPoints(15));//查看shape顶点数据
+        var geometry = new THREE.ShapeGeometry(shape, 25);
+        geometry.translate(0, 0, 20);
+        var material = new THREE.LineBasicMaterial({
+            color: 0x00ff00,
+            side: THREE.DoubleSide
+        });
+        var mesh1 = new THREE.Mesh(geometry, material);
+        scene.add(mesh1); //线条对象添加到场景中
+
+
+        // 通过shpae基类path的方法绘制轮廓（本质也是生成顶点）
+        var shape = new THREE.Shape();
+        // 四条直线绘制一个矩形轮廓
+        shape.moveTo(0, 0);//起点
+        shape.lineTo(0, 30);//第2点
+        shape.lineTo(30, 30);//第3点
+        shape.lineTo(30, 0);//第4点
+        shape.lineTo(0, 0);//第5点
+        var geometry = new THREE.ShapeGeometry(shape, 25);
+        geometry.translate(0, 0, 40);
+        var material = new THREE.LineBasicMaterial({
+            color: 0xffff00,
+            side: THREE.DoubleSide
+        });
+        var mesh2 = new THREE.Mesh(geometry, material);
+        scene.add(mesh2); //线条对象添加到场景中
+
+        // 圆弧与直线连接
+        var shape = new THREE.Shape(); //Shape对象
+        var R = 25;
+        // 绘制一个半径为R、圆心坐标(0, 0)的半圆弧
+        shape.absarc(0, 0, R, 0, Math.PI);
+        //从圆弧的一个端点(-R, 0)到(-R, -200)绘制一条直线
+        shape.lineTo(-R, -50);
+        // 绘制一个半径为R、圆心坐标(0, -200)的半圆弧
+        shape.absarc(0, -50, R, Math.PI, 2 * Math.PI);
+        //从圆弧的一个端点(R, -200)到(-R, -200)绘制一条直线
+        shape.lineTo(R, 0);
+        var geometry = new THREE.ShapeGeometry(shape, 30);
+        geometry.translate(0, 0, 60);
+        var material = new THREE.LineBasicMaterial({
+            color: 0xff00ff,
+            side: THREE.DoubleSide
+        });
+        var mesh3 = new THREE.Mesh(geometry, material);
+        scene.add(mesh3); //线条对象添加到场景中
+
+        // 一个外轮廓圆弧嵌套三个内圆弧轮廓
+        var shape = new THREE.Shape(); //Shape对象
+        //外轮廓
+        shape.arc(0, 0, 40, 0, 2 * Math.PI);
+        // 内轮廓1
+        var path1 = new THREE.Path();
+        path1.arc(0, 0, 20, 0, 2 * Math.PI);
+        // 内轮廓2
+        var path2 = new THREE.Path();
+        path2.arc(30, 0, 4, 0, 2 * Math.PI);
+        // 内轮廓3
+        var path3 = new THREE.Path();
+        path3.arc(-30, 0, 4, 0, 2 * Math.PI);
+        //三个内轮廓分别插入到holes属性中
+        shape.holes.push(path1, path2, path3);
+        var geometry = new THREE.ShapeGeometry(shape, 30);
+        geometry.translate(0, 0, 80);
+        var material = new THREE.LineBasicMaterial({
+            color: 0xff0022,
+            side: THREE.DoubleSide
+        });
+        var mesh4 = new THREE.Mesh(geometry, material);
+        scene.add(mesh4); //线条对象添加到场景中
+
+        // 轮廓对象1
+        var shape = new THREE.Shape();
+        shape.arc(-20, 0, 10, 0, 2 * Math.PI);
+        // 轮廓对象2
+        var shape2 = new THREE.Shape();
+        shape2.arc(20, 0, 10, 0, 2 * Math.PI);
+        // 轮廓对象3
+        var shape3 = new THREE.Shape();
+        shape3.arc(0, 20, 10, 0, 2 * Math.PI);
+        // 多个shape作为元素组成数组,每一个shpae可以理解为一个要填充的轮廓
+        var geometry = new THREE.ShapeGeometry([shape, shape2, shape3], 30);
+        geometry.translate(0, 0, 100);
+        var material = new THREE.LineBasicMaterial({
+            color: 0x22f022,
+            side: THREE.DoubleSide
+        });
+        var mesh5 = new THREE.Mesh(geometry, material);
+        scene.add(mesh5); //线条对象添加到场景中
+
+
+        // 河南边界轮廓坐标
+        let arr = [
+            [110.3906, 34.585],
+            [110.8301, 34.6289],
+            [110.6543, 34.1455],
+            [110.4785, 34.2334],
+            [110.3906, 34.585]
+        ]
+        var points = [];
+        // 转化为Vector2构成的顶点数组
+        arr.forEach(elem => {
+            points.push(new THREE.Vector2(elem[0], elem[1]))
+        });
+        // 样条曲线生成更多的点
+        var SplineCurve = new THREE.SplineCurve(points)
+        var shape = new THREE.Shape(SplineCurve.getPoints(300));
+        // var shape = new THREE.Shape(points);
+        var geometry = new THREE.ShapeGeometry(shape);
+        geometry.center();//几何体居中
+        geometry.translate(0, 0, 120);
+        geometry.scale(30, 30, 30);//几何体缩放
+        var material = new THREE.MeshPhongMaterial({
+            color: 0x0000ff,
+            side: THREE.DoubleSide //两面可见
+        }); //材质对象
+        var mesh6 = new THREE.Mesh(geometry, material); //网格模型对象
+        scene.add(mesh6); //线条对象添加到场景中
+
+
+
+        var point = new THREE.PointLight(0xffffff);
+        point.position.set(400, 200, 300);
+        scene.add(point);
+        var ambient = new THREE.AmbientLight(0x9966ff);
+        scene.add(ambient);
+
+
+        var axisHelper = new THREE.AxisHelper(100);
+        scene.add(axisHelper);
+
+
+        function render() {
+            renderer.render(scene, camera);
+        }
+        function animate() {
+            requestAnimationFrame(animate);
+            render()
+        }
+        animate();
+
+
+        var controls = new THREE.OrbitControls(camera, renderer.domElement);
+        controls.addEventListener('change', render);
+
+    </script>
+</body>
+
+</html>

@@ -4,9 +4,8 @@ let express = require('express')
 let app = express()
 
 
-// app.use(express.static(path.join(__dirname, '../three.js-dev')))  //例如访问：http://localhost:8081/test.html
-app.use('/three.js-dev', express.static(path.join(__dirname, '../three.js-dev')))  //例如访问：http://localhost:8081/three.js-dev/test.html
-app.use('/lesson', express.static(path.join(__dirname, '../lesson')))  //例如访问：http://localhost:8081/lesson/test.html
+app.use('/', express.static(path.join(__dirname, '../three.js-dev')))  //例如访问：http://localhost:8081/test.html
+app.use('/examples', express.static(path.join(__dirname, '../three.js-dev/examples')))  //例如访问：http://localhost:8081/examples/test.html
 app.use('/public', express.static('public'));  //例如访问：http://localhost:8081/public/imgs/logo.png
 
 
