@@ -6,13 +6,28 @@
 
 * 渲染器:
   ·分类：
-    ~ WebGLMultisampleRenderTarget
-      ~ 一个特殊的渲染目标，可以用来利用多采样渲染缓冲区。
-      ~ WebGLMultisampleRenderTarget只能与WebGL 2渲染上下文一起使用。  
-    ~ WebGLRenderer
+    ~ WebGLRenderer：
+      ~ 渲染器
+      ~ webGLRenderer.render(Scene, Camera, WebGLRenderTarget, forceClear)
+        ~ Scene:要渲染的场景对象
+        ~ Camera:场景对象对应的相机对象
+        ~ WebGLRenderTarget:如果参数指定了WebGL渲染目标WebGLRenderTarget，渲染的图像结果保存到该对象，或者说保存到GPU自定义帧缓冲区中，不会显示到canvas画布上； 如果没有指定渲染目标，也就是没有该参数，渲染结果会直接显示到canvas画布上，或者说渲染结果保存到canvas画布对应的默认帧缓冲区中
     ~ WebGLRenderTarget:
-      ~ render target是一个缓冲，就是在这个缓冲中，视频卡为正在后台渲染的场景绘制像素。 它用于不同的效果，例如用于在一个图像显示在屏幕上之前先做一些处理。
+      ~ WebGLRenderTarget实现了WebGL的离屏渲染功能
+      ~ WebGLRenderTarget是一个缓冲，就是在这个缓冲中，视频卡为正在后台渲染的场景绘制像素。
+      ~ 它用于不同的效果，例如用于在一个图像显示在屏幕上之前先做一些处理。
+    ~ WebGLMultisampleRenderTarget
+      ~ 继承自WebGLRenderTarget
+      ~ 一个特殊的渲染目标，可以用来利用多采样渲染缓冲区。
+      ~ WebGLMultisampleRenderTarget只能与WebGL 2渲染上下文一起使用
+      ~ demo：
+        // 创建一个WebGL渲染目标对象WebGLRenderTarget
+        // 设置渲染结果(一帧图像)的像素为500x500
+        var target = new THREE.WebGLRenderTarget(500, 500);
+        // 设置特定target的时候，render渲染结果不会显示在canvas画布上
+        renderer.render(scene, camera,target); //执行渲染操作
     ~ WebGLRenderTargetCube:
+      ~ 继承自WebGLRenderTarget
       ~ 被CubeCamera作为它的WebGLRenderTarget使用
 
 * 摄像机：
@@ -350,15 +365,59 @@
     ~ 《一个例子：物体边界线条高亮处理》：https://blog.csdn.net/qq_39503511/article/details/111031800
 
 * 常用库：
-  · ammo.wasm.js：目前知名物理引擎Bullet 3D已经提供对应的JS版本——Ammo，并提供了js与wasm两个版本供Web开发者使用。
   · stats.js：主要用于检测动画运行时的帧数
-  · OrbitControls.js：轨道控制器OrbitControls.js是一个相当神奇的控件，用它可以实现场景用鼠标交互，让场景动起来，控制场景的旋转、平移，缩放
-  · ConvexObjectBreaker.js:
-  · ConvexGeometry.js:通过THREE.ConvexGeometry，我们可以围绕一组点创建一个凸包。所谓凸包就是包围这组点的最小图形。也就是所有的点都在当前模型的体内，而且当前图形还是实现的体积最小的一个模型。
   · dat.gui.js：Dat.gui 是一个GUI组件，他可以为你的demo提供参数的设置，并且很容易上手。https://www.cnblogs.com/xiaoniuzai/p/6685556.html
-  · Lensflare.js：Three.js通过Lensflare可以创造出我们看向太阳的时候出现的那种光晕的效果。                  
-  · EffectComposer.js：后期处理
-  · tween.js：缓动动画
+  · DragControls.js：鼠标略过模型出现三维坐标轴，通过点击三维坐标轴，在 x、y、z 轴上移动，并且通过点中模型任意拖拽模型。
+  · OrbitControls.js：轨道控制器OrbitControls.js是一个相当神奇的控件，用它可以实现场景用鼠标交互，让场景动起来，控制场景的旋转、平移，缩放
+  · FirstPersonControls.js：通过第一视角控制器你可以像第一视角射击游戏那样控制摄像机。鼠标用于控制视角，键盘用于控制移动角色。本人感觉最类似的效果就是cs游戏死亡后，能够随意漂浮的感觉。
+  · TransformControls.js：鼠标操控物体移动、缩放、旋转的控件（物体操作工具）
+  · FlyControls.js：FlyControls是相机的控件，飞行模拟器控件,用键盘和鼠标控制相机移动和旋转。这个控件使用可以把相机想象成是无人机的摄像头。
+  · ammo.wasm.js：目前知名物理引擎Bullet 3D已经提供对应的JS版本——Ammo，并提供了js与wasm两个版本供Web开发者使用。
+  · ConvexGeometry.js:通过THREE.ConvexGeometry，我们可以围绕一组点创建一个凸包。所谓凸包就是包围这组点的最小图形。也就是所有的点都在当前模型的体内，而且当前图形还是实现的体积最小的一个模型。
+  · Lensflare.js：Three.js通过Lensflare可以创造出我们看向太阳的时候出现的那种光晕的效果。        
+  · ThreeBSP.js：可以将现有的模型组合出更多个性的模型来使用。我们可以使用ThreeBSP库里面的三个函数进行现有模型的组合，分别是：差集(相减)、并集(组合、相加)、交集(两几何体重合的部分)。
+  · tween.js：缓动动画       
+  · EffectComposer.js：后期处理效果组合器
+  · 通道：https://blog.csdn.net/qq_41741576/article/details/102392914
+    ~ RenderPass.js：场景通道。该通道会在当前场景和摄像机的基础上渲染出一个新场景，和普通的webGLRenderer一样。如果不再建一个场景，什么也看不到。var renderPass=new THREE.RenderPass(scene,camera);composer.addPass(renderPass);
+    ~ ShaderPass.js：Shader通道。该通道接受自定义的着色器作为参数，以生成一个高级、自定义的后期处理通道, 产生各种模糊效果和高级滤镜
+      ~ CopyShader：配合Shader后处理通道使用——该着色器会将效果输出，普通的通道一般都是不能输出的，要靠CopyShader进行输出
+      ~ AfterimageShader：该着色器主要使运动的模型产生残影，搭配对应通道使用
+      ~ DotScreenShader：输出灰度点集
+      ~ MirrorShader：创建镜面效果
+      ~ HueSaturationShader：改变颜色的色调和饱和度
+      ~ VignetteShader：添加晕映效果
+      ~ ColorCorrectionShader：调整颜色的分布
+      ~ RGBShiftShader：将红绿蓝三种颜色分开
+      ~ BrightnessContrastShader：改变亮度和对比度
+      ~ ColorifyShader：将某种颜色覆盖到整个屏幕
+      ~ SepiaShader：创建类似于乌贼墨的效果
+      ~ KaleidoShader：类似于万花筒的效果
+      ~ LuminosityShader：提高亮度
+      ~ TechnicolorShader：模拟类似老电影里面的两条彩色效果
+      ~ HorizontalBlurShader和THREE.VerticalBlurShader：可以向水平和垂直方向创建模糊效果
+      ~ HorizontalTiltShiftShader和THREE.VerticalTileShiftShader：可以在水平和垂直方向创建倾斜平移的效果
+      ~ TriangleBlurShader：基于三角形的方法创造一种模糊效果
+      ~ BleachBypassShader：创造一种镀银的效果
+      ~ EdgeShader：找到图片的边界并显示
+      ~ FXAAShader：添加抗锯齿的效果
+      ~ FocusShader：创建中间比较尖锐，周围比较模糊的效果
+    ~ GlitchPass.js：该通道会随机在屏幕上显示电脉冲。使用时需要引入对应的着色器包
+      ~ DigitalGlitch：配合后处理通道使用——该着色器会使屏幕显示电子脉冲，搭配对应通道使用
+    ~ MaskPass.js：该通道可以在当前图像上添加掩码，后续的通道只会影响掩蔽区域，并且使用完后必须清除掩码区域。
+    ~ TexturePass.js：纹理贴图通道，如设置背景贴图。
+    ~ AfterimagePass.js：该通道可以让通道场景内的物体在运动时，产生残影效果。使用时需要引入相对应的着色器包
+    ~ OutlinePass.js：该通道可以为物体（场景中被添加到通道中的物体）的边缘添加一个发光效果。常用于选择模型、显示外边框
+    ~ UnrealBloomPass.js：该通道会产生类似于虚幻引擎的效果，需搭配对应的着色器包使用
+    ~ ClearPass.js：清除背景通道，设置背景颜色等。
+    ~ CubeTexturePass.js：立方体盒子（天空盒子）贴图通道，设置全景贴图。
+    ~ BokehPass.js：该通道可以设置背景虚化程度，类似相机变焦产生的效果。
+    ~ HalftonePass.js：该通道可以给场景添加RGB三色效果，并且可以设置参数调节，需搭配对应着色器使用
+    ~ FilmPass.js：该通道会使用扫描线和失真来模拟电视屏幕效果。
+    ~ BloomPass.js：该通道会增强场景中的亮度。
+
+
+  · ConvexObjectBreaker.js:
   
 * Spector.js：
   · 着色分析工具
