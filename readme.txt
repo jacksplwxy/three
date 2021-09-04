@@ -63,7 +63,13 @@
   · traverse:递归遍历
   · getObjectByName / getObjectById ：查找某个具体的模型  
   · updateMatrix：
-    ~ 文档：https://www.jianshu.com/p/8aa21a1ae6a6
+    ~ 文档：
+      ~ https://www.jianshu.com/p/8aa21a1ae6a6
+      ~ http://www.yanhuangxueyuan.com/doc/three.js/update.html
+    ~ Threejs设置了一套默认的更新机制，对于一些不经常更新的对象，three.js默认是不更新，如果有相关的更新发生，可以手动更新。
+      ~ 纹理对象更新
+      ~ 相机对象更新
+      ~ 层级模型更新
     ~ 设置不自动更新：object3d.matrixAutoUpdate = false;
     ~ 手动更新：object3d.updateMatrix();
   · layers：层级属性
@@ -156,9 +162,12 @@
       ~ tangent：切线数据。作用未知，该数据可以通过其他几个属性计算得到
   · 方法：
     ~ merge：通过merge合并其他几何体以提升性能。merge以后只是一个整体，无法再分开，也没办法判断点击的哪个物体，这只适合合并一些场景内不再修改的模型。
-  · geometry和BufferGeometry区别：
+  · Geometry和BufferGeometry区别：
     ~ Geometry更适合于人来理解，自定义的地方比较多，但性能比较低一些；
     ~ BufferGeometry更适合计算机来理解，自定义的地方很少，适合对图形学非常了解的人使用，但是性能很高。
+  · Geometry和BufferGeometry的相互转换：
+    ~ Geometry转BufferGeometry：var bufferGeometry = new THREE.BufferGeometry().fromGeometry(geometry)
+    ~ BufferGeometry转Geometry：var geometry = new THREE.Geometry().fromBufferGeometry(bufferGeometry)
   · Three.js一共有23种内置的图元：
     ~ 盒子(Box)：BoxBufferGeometry、BoxGeometry
     ~ 平面圆(Circle)：CircleBufferGeometry、CircleGeometry
@@ -328,7 +337,11 @@
   · raycatser实现picking功能：我们可以定义一个由mouse(鼠标)发出的射线，从而来拾取物体。获取第一个和射线相交的物体，进一步可以进行其他操作（本篇用于改变获取物体的颜色）
   · raycaster实现measure功能：首先获取屏幕坐标位置，转化为三维坐标位置。再将得到的三维向量坐标转为视点坐标系（参照是摄像机），并且创建射线，方向是选定模型点与摄像机两点的连线
   
-
+* Clock:
+  · 该对象用于跟踪时间。如果performance.now可用，则Clock对象通过该方法实现，否则回落到使用略欠精准的Date.now来实现。
+  · 常用于骨骼动画、变形动画、粒子动画等
+  · 方法：
+    ~ getDelta：获得Threejs本次执行渲染方法.render()和上次执行渲染方法.render()的时间间隔，简单的说就是通过.getDelta()方法获得Three.js两帧渲染时间间隔。
 
 * LOD（Levels of Detail）：
   · 多细节层次
@@ -367,16 +380,46 @@
 * 常用库：
   · stats.js：主要用于检测动画运行时的帧数
   · dat.gui.js：Dat.gui 是一个GUI组件，他可以为你的demo提供参数的设置，并且很容易上手。https://www.cnblogs.com/xiaoniuzai/p/6685556.html
-  · DragControls.js：鼠标略过模型出现三维坐标轴，通过点击三维坐标轴，在 x、y、z 轴上移动，并且通过点中模型任意拖拽模型。
   · OrbitControls.js：轨道控制器OrbitControls.js是一个相当神奇的控件，用它可以实现场景用鼠标交互，让场景动起来，控制场景的旋转、平移，缩放
-  · FirstPersonControls.js：通过第一视角控制器你可以像第一视角射击游戏那样控制摄像机。鼠标用于控制视角，键盘用于控制移动角色。本人感觉最类似的效果就是cs游戏死亡后，能够随意漂浮的感觉。
-  · TransformControls.js：鼠标操控物体移动、缩放、旋转的控件（物体操作工具）
-  · FlyControls.js：FlyControls是相机的控件，飞行模拟器控件,用键盘和鼠标控制相机移动和旋转。这个控件使用可以把相机想象成是无人机的摄像头。
+  · FirstPersonControls.js：
+    ~ 通过键盘改变摄像机的x、y、z轴的位置，通过鼠标位置改变摄像机的旋转方向
+    ~ w/up/鼠标左键向前、s/down/鼠标右键向后、a/left向左、d/right向右、r向上、f向下、q停止移动
+    ~ 通过第一视角控制器你可以像第一视角射击游戏那样控制摄像机。鼠标用于控制视角，键盘用于控制移动角色。本人感觉最类似的效果就是cs游戏死亡后，能够随意漂浮的感觉。
+    ~ demo:http://www.webgl3d.cn/threejs/examples/#webgl_geometry_terrain
+  · FlyControls.js：
+    ~ FlyControls是相机的控件，飞行模拟器控件,用键盘和鼠标控制相机移动和旋转。这个控件使用可以把相机想象成是无人机的摄像头。
+    ~ q顺时针旋转、e逆时针旋转、w/鼠标左键拉近、s/鼠标右键拉远、a/left左移、d/right右移、r/down下移、f/up上移
+    ~ demo：http://www.webgl3d.cn/threejs/examples/#misc_controls_fly
+  · PointerLockControls.js：
+    ~ PointerLockControls是第一人称3D游戏的完美选择
+    ~ 移动: WASD
+      跳跃: SPACE
+      视野: MOUSE
+    ~ demo：http://www.webgl3d.cn/threejs/examples/#misc_controls_pointerlock
+  · TrackballControls.js：
+    ~ TrackballControls类似于OrbitControls。 然而，它并不保持一个恒定的摄像机向上向量。 这意味着，如果相机在南极和北极轨道上运行，它不会翻转以保持“正面朝上”。  
+    ~ demo：http://www.webgl3d.cn/threejs/docs/#examples/zh/controls/TrackballControls
+  · TransformControls.js：
+    ~ 鼠标操控物体移动、缩放、旋转的控件（物体操作工具）
+    ~ demo：http://www.webgl3d.cn/threejs/examples/#misc_controls_transform
+  · DragControls.js：
+    ~ 鼠标略过模型出现三维坐标轴，通过点击三维坐标轴，在 x、y、z 轴上移动，并且通过点中模型任意拖拽模型。
+    ~ demo：http://www.webgl3d.cn/threejs/examples/#misc_controls_drag
+  · DeviceOrientationControls
+    ~ 可用于根据移动设备的方向来定位相机。 
+    ~ demo:http://www.webgl3d.cn/threejs/docs/#examples/zh/controls/DeviceOrientationControls（手机查看）
+  · ThreeBSP.js：
+    ~ 可以将现有的模型组合出更多个性的模型来使用。我们可以使用ThreeBSP库里面的三个函数进行现有模型的组合，分别是：差集(相减)、并集(组合、相加)、交集(两几何体重合的部分)。
+    ~ 注意：若geometry为BufferGeometry则ThreeBSP无效
+    ~ 注意：ThreeBSP需要与THREE.js的版本配套
+    ~ 使用clippingPlanes替代：待确认
+  · tween.js：缓动动画       
   · ammo.wasm.js：目前知名物理引擎Bullet 3D已经提供对应的JS版本——Ammo，并提供了js与wasm两个版本供Web开发者使用。
   · ConvexGeometry.js:通过THREE.ConvexGeometry，我们可以围绕一组点创建一个凸包。所谓凸包就是包围这组点的最小图形。也就是所有的点都在当前模型的体内，而且当前图形还是实现的体积最小的一个模型。
-  · Lensflare.js：Three.js通过Lensflare可以创造出我们看向太阳的时候出现的那种光晕的效果。        
-  · ThreeBSP.js：可以将现有的模型组合出更多个性的模型来使用。我们可以使用ThreeBSP库里面的三个函数进行现有模型的组合，分别是：差集(相减)、并集(组合、相加)、交集(两几何体重合的部分)。
-  · tween.js：缓动动画       
+  · Lensflare.js：Three.js通过Lensflare可以创造出我们看向太阳的时候出现的那种光晕的效果。  
+  · ImprovedNoise.js：
+    ~ 通过算法实现山脉等地形效果本质就是随机生地面高度数据，就是随机生成几何体Geometry顶点数据。 
+    ~ demo：http://www.webgl3d.cn/threejs/examples/#webgl_geometry_terrain     
   · EffectComposer.js：后期处理效果组合器
   · 通道：https://blog.csdn.net/qq_41741576/article/details/102392914
     ~ RenderPass.js：场景通道。该通道会在当前场景和摄像机的基础上渲染出一个新场景，和普通的webGLRenderer一样。如果不再建一个场景，什么也看不到。var renderPass=new THREE.RenderPass(scene,camera);composer.addPass(renderPass);
@@ -416,11 +459,31 @@
     ~ FilmPass.js：该通道会使用扫描线和失真来模拟电视屏幕效果。
     ~ BloomPass.js：该通道会增强场景中的亮度。
 
-
-  · ConvexObjectBreaker.js:
   
 * Spector.js：
   · 着色分析工具
+
+* 最佳实践：
+  · three中使用canvas：
+    ~ 创建canvas纹理，加入到Material，再加入到Mesh或者Sprite中
+      var canvas = document.createElement("canvas");
+      var texture = new THREE.CanvasTexture(canvas);
+      var material = new THREE.MeshPhongMaterial({
+        map: texture
+      });
+  · three中使用dom：
+    ~ 将dom绘制到canvas上，再将canvas作为纹理载入到three中。dom绘制到canvas的原理
+      1、借助于SVG中<foreignObject>元素的能力，允许将XHTML片段嵌入其中，从而成为SVG矢量图的一部分
+      2、组装Data URL，其格式类似于src = data:image/svg+xml,[svg]
+      3、调用CanvasRenderingContext2D.drawImage(src)绘制到canvas上
+    ~ 使用html2canvas将dom转为图片
+    ~ 将dom放入一个与three并行存在的dom元素中
+    ~ 通过CSS2DRenderer/CSS3DRenderer/SVGRenderer将dom对象转化为three中的对象
+  · 移动摄像机：https://blog.csdn.net/a13602955218/article/details/85222828
+    ~ 轨迹球控制器
+    ~ 飞行控制器/翻滚控制器
+    ~ 第一视角控制器
+    ~ 轨道控制器
 
 * 坑：
   · FBXLoader有时候加载不出纹理是因为版本问题

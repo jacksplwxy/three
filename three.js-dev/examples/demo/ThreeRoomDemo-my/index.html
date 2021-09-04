@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title>three.js app</title>
+    <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            font-size: 14px;
+            text-decoration: none;
+        }
+
+        canvas {
+            width: 100%;
+            height: 100%;
+        }
+    </style>
+</head>
+
+<body>
+    <script src="https://cdn.bootcdn.net/ajax/libs/three.js/r120/three.js"></script>
+    <script src="./js/ThreeBPS.js"></script>
+    <script type="module">
+        // import * as THREE from '../../../build/three.module.js'
+        import Stats from '../../jsm/libs/stats.module.js'
+        import { OrbitControls } from '../../jsm/controls/OrbitControls.js'
+        import { GUI } from '../../jsm/libs/dat.gui.module.js'
+
+        const CFG = {
+            EVN: 'dev'
+        }
+        const cs = console.log
+        let scene = null
+        let renderer = null
+        let camera = null
+        let cameraReference = null
+        let cameraHelper = null
+        let orbitControls = null
+        let stats = null
+        let loaders = {
+            textureLoader: new THREE.TextureLoader()
+        }
+        main()
+
+        function main() {
+            sceneInit()
+            groupsInit()
+            rendererInit()
+            cameraInit()
+            lightInit()
+            orbitControlsInit()
+            directInit()
+
+            if (CFG.EVN === 'dev') {
+                statsInit()
+                AxesHelperInit()
+                cameraHelperInit()
+                guiInit()
+            }
+            animate()
+        }
+
+        //场景初始化
+        function sceneInit() {
+            scene = new THREE.Scene()
+        }
+
+        //groups初始化
+        function groupsInit() {
+            let groups = new THREE.Group()
+            groups.name = 'groups'
+            scene.add(groups)
+        }
+
+        //渲染器初始化
+        function rendererInit() {
+            renderer = new THREE.WebGLRenderer()
+            renderer.setSize(window.innerWidth, window.innerHeight)
+            document.body.appendChild(renderer.domElement)
+        }
+
+        //相机初始化
+        function cameraInit() {
+            camera = new THREE.PerspectiveCamera(30, window.innerWidth / window.innerHeight, 0.1, 1000)
+            camera.position.x = 0
+            camera.position.y = 0
+            camera.position.z = 100
+            //相机看向哪个坐标
+            camera.lookAt({
+                x: 0,
+                y: 0,
+                z: 0
+            })
+            //相机以哪个方向为上方.默认y轴为上方
+            camera.up.x = 0
+            camera.up.y = 1
+            camera.up.z = 0
+        }
+
+        //光源初始化
+        function lightInit() {
+            //环境光
+            let ambient = new THREE.AmbientLight(0x888888)
+            scene.add(ambient)
+            //点光源
+            let pointLight = new THREE.PointLight(0xaaaaaa)
+            pointLight.position.set(100, 100, 100)
+            scene.add(pointLight)
+
+            if (CFG.EVN === 'dev') {
+                //点光源助手
+                let pointLightHelper = new THREE.PointLightHelper(pointLight, 1)
+                scene.add(pointLightHelper)
+            }
+        }
+
+        //鼠标交互
+        function orbitControlsInit() {
+            orbitControls = new OrbitControls(camera, renderer.domElement)
+            // orbitControls.addEventListener('change', render)
+
+
+            // 如果使用animate方法时，将此函数删除
+            //controls.addEventListener( 'change', render );
+            setTimeout(() => {
+                // 使动画循环使用时阻尼或自转 意思是否有惯性
+                orbitControls.enableDamping = true;
+                //动态阻尼系数 就是鼠标拖拽旋转灵敏度
+                //controls.dampingFactor = 0.25;
+                //是否可以缩放
+                orbitControls.enableZoom = true;
+                //是否自动旋转
+                orbitControls.autoRotate = false;
+                //设置相机距离原点的最远距离
+                orbitControls.minDistance = 200;
+                //设置相机距离原点的最远距离
+                orbitControls.maxDistance = 600;
+                //是否开启右键拖拽
+                orbitControls.enablePan = true;
+            }, 3000);
+
+        }
+
+        //渲染函数
+        function render() {
+            if (CFG.EVN === 'dev') {
+                cameraReference.updateMatrix()
+                cameraReference.lookAt(0, 0, 0)
+                cameraHelper.update()
+
+                stats.update()
+
+                orbitControls.update()
+            }
+            renderer.render(scene, camera)
+        }
+
+        //开始渲染
+        function animate() {
+            render()
+            requestAnimationFrame(animate)
+        }
+
+        //性能面板初始化
+        function statsInit() {
+            stats = new Stats()
+            stats.domElement.style.position = 'absolute'
+            stats.domElement.style.top = '0px'
+            document.body.appendChild(stats.domElement)
+        }
+
+        //坐标助手初始化
+        function AxesHelperInit() {
+            //红色代表 X 轴. 绿色代表 Y 轴. 蓝色代表 Z 轴
+            let AxesHelper = new THREE.AxesHelper(1000)
+            scene.add(AxesHelper)
+        }
+
+        // 相机助手初始化
+        function cameraHelperInit() {
+            cameraReference = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 1, 100)
+            cameraReference.position.set(0, 0, 100)
+            cameraHelper = new THREE.CameraHelper(cameraReference)
+            scene.add(cameraHelper)
+        }
+
+        //参数控制面板
+        function guiInit() {
+            let options = {
+                x: 0,
+                y: 0,
+                z: 0
+            }
+            let gui = new GUI()
+            gui.add(options, 'x', -1, 1).step(0.005)
+            gui.add(options, 'y', -1, 1).step(0.005)
+            gui.add(options, 'z', -1, 1).step(0.005)
+        }
+
+
+        function directInit() {
+            let groups = scene.getObjectByName("groups")
+            groups.add(getFrameGroup())
+            cs('scene', scene)
+        }
+
+
+        //求2个BSP对象的结果
+        function getBSPResult(bsp0, bsp1, type = 'intersect') {
+            let result = null
+            switch (type) {
+                case 'intersect':
+                    result = bsp0.intersect(bsp1).toMesh()
+                    break
+                case 'union':
+                    result = bsp0.union(bsp1).toMesh()
+                    break
+                case 'subtract':
+                    result = bsp0.subtract(bsp1).toMesh()
+                    break
+            }
+            result.geometry.computeFaceNormals() //重新计算几何体侧面法向量
+            result.geometry.computeVertexNormals()
+            // result.material.needsUpdate = true 
+            // result.geometry.buffersNeedUpdate = true
+            // result.geometry.uvsNeedUpdate = true
+            return result
+        }
+
+        //创建地板、围墙等基本框架
+        function getFrameGroup() {
+            let frameGroup = new THREE.Group()
+            frameGroup.name = 'frameGroup'
+
+            //地板
+            let texture = loaders.textureLoader.load('./images/room-floor.png')
+            texture.wrapS = THREE.RepeatWrapping
+            texture.wrapT = THREE.RepeatWrapping
+            // uv两个方向纹理重复数量
+            texture.repeat.set(20, 10)
+            let floor = new THREE.Mesh(new THREE.PlaneBufferGeometry(200, 100, 1, 1), new THREE.MeshLambertMaterial({
+                // color: 0x0ff000,
+                side: THREE.DoubleSide,
+                map: texture
+            }))
+            frameGroup.add(floor)
+
+            let material_wall = new THREE.MeshPhysicalMaterial({
+                color: 0xAFC0CA,
+                side: THREE.DoubleSide
+            })
+            //前面的墙
+            let wall_front = new THREE.Mesh(new THREE.BoxBufferGeometry(200, 0.4, 20), material_wall)
+            wall_front.position.set(0, -50, 10)
+            frameGroup.add(wall_front)
+            //后面的墙
+            let wall_back = new THREE.Mesh(new THREE.BoxGeometry(200, 0.4, 20), material_wall)
+            wall_back.position.set(0, 50, 10)
+            //窗户1
+            let emptyWindow0 = new THREE.Mesh(new THREE.BoxGeometry(6, 0.4, 4), material_wall)
+            emptyWindow0.position.set(-80, 50, 8)
+            let emptyWindow1 = emptyWindow0.clone()
+            emptyWindow1.position.set(-80, 50, 14)
+            let emptyWindow2 = emptyWindow0.clone()
+            emptyWindow2.position.set(-70, 50, 8)
+            let emptyWindow3 = emptyWindow0.clone()
+            emptyWindow3.position.set(-70, 50, 14)
+            wall_back = getBSPResult(new ThreeBSP(wall_back), new ThreeBSP(emptyWindow0), 'subtract')
+            wall_back = getBSPResult(new ThreeBSP(wall_back), new ThreeBSP(emptyWindow1), 'subtract')
+            wall_back = getBSPResult(new ThreeBSP(wall_back), new ThreeBSP(emptyWindow2), 'subtract')
+            wall_back = getBSPResult(new ThreeBSP(wall_back), new ThreeBSP(emptyWindow3), 'subtract')
+            wall_back.material = material_wall
+            frameGroup.add(wall_back)
+            //左面的墙
+            let wall_left = new THREE.Mesh(new THREE.BoxGeometry(0.4, 100, 20), material_wall)
+            wall_left.position.set(-100, 0, 10)
+            frameGroup.add(wall_left)
+            //右面的墙
+            let wall_right = new THREE.Mesh(new THREE.BoxBufferGeometry(0.4, 100, 20), material_wall)
+            wall_right.position.set(100, 0, 10)
+            frameGroup.add(wall_right)
+
+            let material_wallInner = new THREE.MeshPhongMaterial({
+                color: 0xffffff,
+                side: THREE.DoubleSide,
+                transparent: true,
+                opacity: 0.4
+            })
+            //内部的墙
+            let wall_inner0 = new THREE.Mesh(new THREE.BoxGeometry(0.4, 80, 20), material_wallInner)
+            wall_inner0.position.set(0, 10, 10)
+            //门
+            let emptyDoor0 = new THREE.Mesh(new THREE.BoxGeometry(0.4, 6, 12), material_wallInner)
+            emptyDoor0.position.set(0, -20, 4)
+            wall_inner0 = getBSPResult(new ThreeBSP(wall_inner0), new ThreeBSP(emptyDoor0), 'subtract')
+            wall_inner0.material = material_wallInner
+            frameGroup.add(wall_inner0)
+            //内部的墙
+            let wall_inner1 = new THREE.Mesh(new THREE.BoxGeometry(0.4, 80, 20), material_wallInner)
+            wall_inner1.position.set(60, 10, 10)
+            //门
+            let emptyDoor1 = new THREE.Mesh(new THREE.BoxGeometry(0.4, 6, 12), material_wallInner)
+            emptyDoor1.position.set(60, -20, 4)
+            wall_inner1 = getBSPResult(new ThreeBSP(wall_inner1), new ThreeBSP(emptyDoor1), 'subtract')
+            wall_inner1.material = material_wallInner
+            frameGroup.add(wall_inner1)
+            //内部的墙
+            let wall_inner2 = new THREE.Mesh(new THREE.BoxGeometry(100, 0.4, 20), material_wallInner)
+            wall_inner2.position.set(50, -30, 10)
+            //门
+            let emptyDoor2 = new THREE.Mesh(new THREE.BoxGeometry(6, 0.4, 12), material_wallInner)
+            emptyDoor2.position.set(50, -30, 4)
+            wall_inner2 = getBSPResult(new ThreeBSP(wall_inner2), new ThreeBSP(emptyDoor2), 'subtract')
+            wall_inner2.material = material_wallInner
+            frameGroup.add(wall_inner2)
+
+            return frameGroup
+        }
+
+
+
+    </script>
+
+</body>
+
+</html>
